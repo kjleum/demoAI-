@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI Platform</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Боковая навигация (УРОВЕНЬ 2) -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <span>◉</span>
+            </div>
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-section="chat" onclick="showSection('chat')">
+                    <span class="nav-icon">💬</span>
+                    <span class="nav-label">Чат</span>
+                </button>
+                <button class="nav-item" data-section="projects" onclick="showSection('projects')">
+                    <span class="nav-icon">📁</span>
+                    <span class="nav-label">Проекты</span>
+                </button>
+                <button class="nav-item" data-section="media" onclick="showSection('media')">
+                    <span class="nav-icon">🎨</span>
+                    <span class="nav-label">Медиа</span>
+                </button>
+                <button class="nav-item" data-section="data" onclick="showSection('data')">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-label">Данные</span>
+                </button>
+                <button class="nav-item" data-section="automation" onclick="showSection('automation')">
+                    <span class="nav-icon">⚡</span>
+                    <span class="nav-label">Авто</span>
+                </button>
+                <button class="nav-item" data-section="profile" onclick="showSection('profile')">
+                    <span class="nav-icon">👤</span>
+                    <span class="nav-label">Профиль</span>
+                </button>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="nav-item" onclick="toggleTheme()">
+                    <span class="nav-icon">🌙</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Основной контент -->
+        <main class="main-content">
+
+            <!-- 1. ЧАТ (Главный экран) -->
+            <section id="chat-section" class="section active">
+                <div class="chat-container">
+                    <!-- Центральное поле чата -->
+                    <div class="chat-main">
+                        <div class="chat-header">
+                            <div class="chat-title">
+                                <h1>Что вы хотите создать или сделать?</h1>
+                                <p class="chat-subtitle">Опишите идею, загрузите файл или вставьте код</p>
+                            </div>
+                            <div class="chat-actions">
+                                <button class="btn-icon" onclick="clearChat()" title="Очистить">🗑️</button>
+                                <button class="btn-icon" onclick="showChatHistory()" title="История">📜</button>
+                            </div>
+                        </div>
+
+                        <div id="chat-messages" class="chat-messages">
+                            <!-- Приветственное сообщение -->
+                            <div class="message system">
+                                <div class="message-content">
+                                    <p>Привет! Я ваш AI-разработчик. Я могу:</p>
+                                    <ul>
+                                        <li>Создать полноценный проект с нуля</li>
+                                        <li>Проанализировать и исправить код</li>
+                                        <li>Сгенерировать изображения, видео, аудио</li>
+                                        <li>Построить архитектуру системы</li>
+                                        <li>Автоматизировать процессы</li>
+                                    </ul>
+                                    <p class="hint">Просто опишите что нужно, или используйте быстрые действия ниже ↓</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Быстрые кнопки под чатом -->
+                        <div class="quick-actions-bar">
+                            <button class="quick-btn" onclick="quickAction('create_project')">
+                                <span>🏗️</span> Создать проект
+                            </button>
+                            <button class="quick-btn" onclick="quickAction('analyze_file')">
+                                <span>📄</span> Анализ файла
+                            </button>
+                            <button class="quick-btn" onclick="quickAction('generate_image')">
+                                <span>🎨</span> Изображение
+                            </button>
+                            <button class="quick-btn" onclick="quickAction('write_code')">
+                                <span>💻</span> Написать код
+                            </button>
+                            <button class="quick-btn" onclick="quickAction('business_plan')">
+                                <span>📈</span> Бизнес-план
+                            </button>
+                            <button class="quick-btn" onclick="quickAction('autonomous')">
+                                <span>🤖</span> Автономный режим
+                            </button>
+                        </div>
+
+                        <!-- Поле ввода -->
+                        <div class="chat-input-wrapper">
+                            <div class="chat-input-container">
+                                <button class="btn-attach" onclick="showAttachMenu()" title="Прикрепить">+</button>
+                                <textarea id="chat-input" placeholder="Опишите вашу идею..." rows="1"></textarea>
+                                <button class="btn-send" onclick="sendMessage()">➤</button>
+                            </div>
+                            <div class="input-hints">
+                                <span>Enter — отправить</span>
+                                <span>Shift+Enter — новая строка</span>
+                                <span>@ — упомянуть агента</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Контекстная панель справа (появляется при необходимости) -->
+                    <div id="context-panel" class="context-panel hidden">
+                        <div class="panel-header">
+                            <h3>Контекст</h3>
+                            <button onclick="closeContextPanel()">×</button>
+                        </div>
+                        <div class="panel-content" id="context-content"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. ПРОЕКТЫ -->
+            <section id="projects-section" class="section">
+                <div class="section-header">
+                    <h2>Проекты</h2>
+                    <button class="btn-primary" onclick="createNewProject()">+ Новый проект</button>
+                </div>
+
+                <div class="projects-grid" id="projects-list">
+                    <!-- Проекты загружаются динамически -->
+                </div>
+            </section>
+
+            <!-- Внутри проекта -->
+            <section id="project-detail-section" class="section">
+                <div class="project-detail">
+                    <header class="project-header">
+                        <button class="btn-back" onclick="showSection('projects')">← Назад</button>
+                        <h2 id="project-detail-title">Название проекта</h2>
+                        <div class="project-tabs">
+                            <button class="tab-btn active" onclick="showProjectTab('architecture')">Архитектура</button>
+                            <button class="tab-btn" onclick="showProjectTab('code')">Код</button>
+                            <button class="tab-btn" onclick="showProjectTab('infrastructure')">Инфраструктура</button>
+                        </div>
+                    </header>
+
+                    <!-- Архитектура -->
+                    <div id="project-architecture" class="project-tab-content active">
+                        <div class="architecture-canvas">
+                            <div class="arch-block" data-type="frontend">
+                                <span class="block-icon">🎨</span>
+                                <span class="block-name">Frontend</span>
+                            </div>
+                            <div class="arch-connector">↔</div>
+                            <div class="arch-block" data-type="backend">
+                                <span class="block-icon">⚙️</span>
+                                <span class="block-name">Backend</span>
+                            </div>
+                            <div class="arch-connector">↔</div>
+                            <div class="arch-block" data-type="database">
+                                <span class="block-icon">🗄️</span>
+                                <span class="block-name">Database</span>
+                            </div>
+                        </div>
+                        <div class="architecture-details" id="arch-details">
+                            <p>Кликните на блок для редактирования</p>
+                        </div>
+                    </div>
+
+                    <!-- Код (IDE) -->
+                    <div id="project-code" class="project-tab-content">
+                        <div class="ide-container">
+                            <div class="file-tree" id="file-tree">
+                                <!-- Файловая структура -->
+                            </div>
+                            <div class="code-editor">
+                                <div class="editor-tabs" id="editor-tabs"></div>
+                                <div class="editor-content">
+                                    <textarea id="code-textarea" placeholder="Выберите файл..."></textarea>
+                                </div>
+                                <div class="editor-sidebar">
+                                    <div class="ai-assistant-panel">
+                                        <h4>AI Помощник</h4>
+                                        <div id="ai-suggestions"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Инфраструктура -->
+                    <div id="project-infrastructure" class="project-tab-content">
+                        <div class="infra-grid">
+                            <div class="infra-card">
+                                <h4>🐳 Docker</h4>
+                                <div class="status-badge active">Активен</div>
+                                <button onclick="viewLogs('docker')">Логи</button>
+                            </div>
+                            <div class="infra-card">
+                                <h4>🔄 CI/CD</h4>
+                                <div class="status-badge active">Настроен</div>
+                                <button onclick="viewLogs('cicd')">Pipeline</button>
+                            </div>
+                            <div class="infra-card">
+                                <h4>📊 Мониторинг</h4>
+                                <div class="status-badge">Ожидание</div>
+                                <button onclick="setupMonitoring()">Настроить</button>
+                            </div>
+                            <div class="infra-card">
+                                <h4>⚠️ Ошибки</h4>
+                                <div class="status-badge warning">2 активных</div>
+                                <button onclick="viewErrors()">Просмотр</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. МЕДИА -->
+            <section id="media-section" class="section">
+                <div class="media-container">
+                    <div class="media-sidebar">
+                        <h3>Генерация</h3>
+                        <nav class="media-nav">
+                            <button class="media-nav-item active" onclick="showMediaType('images')">
+                                <span>🖼️</span> Изображения
+                            </button>
+                            <button class="media-nav-item" onclick="showMediaType('video')">
+                                <span>🎬</span> Видео
+                            </button>
+                            <button class="media-nav-item" onclick="showMediaType('audio')">
+                                <span>🎵</span> Аудио
+                            </button>
+                            <button class="media-nav-item" onclick="showMediaType('3d')">
+                                <span>🧊</span> 3D
+                            </button>
+                            <button class="media-nav-item" onclick="showMediaType('music')">
+                                <span>🎹</span> Музыка
+                            </button>
+                        </nav>
+                    </div>
+
+                    <div class="media-workspace">
+                        <!-- Изображения -->
+                        <div id="media-images" class="media-type active">
+                            <div class="media-input-area">
+                                <textarea id="image-prompt" placeholder="Опишите изображение подробно..."></textarea>
+                                <div class="media-options">
+                                    <select id="image-model">
+                                        <option>SDXL</option>
+                                        <option>DALL-E 3</option>
+                                        <option>Midjourney</option>
+                                        <option>Kandinsky</option>
+                                    </select>
+                                    <select id="image-size">
+                                        <option>1024×1024</option>
+                                        <option>1024×768</option>
+                                        <option>768×1024</option>
+                                    </select>
+                                    <select id="image-style">
+                                        <option>Реалистичный</option>
+                                        <option>Аниме</option>
+                                        <option>3D Рендер</option>
+                                        <option>Масло</option>
+                                    </select>
+                                </div>
+                                <button class="btn-generate" onclick="generateImage()">
+                                    <span>✨</span> Сгенерировать
+                                </button>
+                            </div>
+                            <div class="media-result" id="image-result"></div>
+                        </div>
+
+                        <!-- Видео -->
+                        <div id="media-video" class="media-type">
+                            <div class="media-input-area">
+                                <textarea id="video-prompt" placeholder="Опишите видео..."></textarea>
+                                <button class="btn-generate" onclick="generateVideo()">
+                                    <span>🎬</span> Сгенерировать видео
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Аудио -->
+                        <div id="media-audio" class="media-type">
+                            <div class="media-input-area">
+                                <textarea id="audio-text" placeholder="Текст для озвучки..."></textarea>
+                                <button class="btn-generate" onclick="textToSpeech()">
+                                    <span>🎤</span> Озвучить
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 3D -->
+                        <div id="media-3d" class="media-type">
+                            <div class="media-input-area">
+                                <textarea placeholder="Опишите 3D модель..."></textarea>
+                                <button class="btn-generate">
+                                    <span>🧊</span> Сгенерировать 3D
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Музыка -->
+                        <div id="media-music" class="media-type">
+                            <div class="media-input-area">
+                                <textarea placeholder="Опишите музыку (жанр, настроение, инструменты)..."></textarea>
+                                <button class="btn-generate">
+                                    <span>🎹</span> Создать музыку
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="media-history">
+                        <h4>История</h4>
+                        <div id="media-history-list"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. ДАННЫЕ -->
+            <section id="data-section" class="section">
+                <div class="data-container">
+                    <div class="data-nav">
+                        <button class="data-nav-btn active" onclick="showDataTab('rag')">RAG & Базы знаний</button>
+                        <button class="data-nav-btn" onclick="showDataTab('documents')">Документы</button>
+                        <button class="data-nav-btn" onclick="showDataTab('nlp')">NLP к БД</button>
+                        <button class="data-nav-btn" onclick="showDataTab('analytics')">Аналитика</button>
+                    </div>
+
+                    <!-- RAG -->
+                    <div id="data-rag" class="data-content active">
+                        <div class="rag-layout">
+                            <div class="collections-panel">
+                                <h4>Коллекции</h4>
+                                <div id="collections-list">
+                                    <div class="collection-item active">
+                                        <span>📁</span> Основная
+                                        <small>24 документа</small>
+                                    </div>
+                                </div>
+                                <button class="btn-secondary" onclick="createCollection()">+ Новая</button>
+                            </div>
+                            <div class="rag-chat">
+                                <div class="rag-messages" id="rag-messages"></div>
+                                <div class="rag-input">
+                                    <input type="text" id="rag-input-field" placeholder="Задайте вопрос по документам...">
+                                    <button onclick="sendRAGMessage()">➤</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Документы -->
+                    <div id="data-documents" class="data-content">
+                        <div class="upload-zone" onclick="uploadDocument()">
+                            <span class="upload-icon">📄</span>
+                            <p>Перетащите PDF, DOCX или TXT</p>
+                            <small>или нажмите для выбора</small>
+                        </div>
+                        <div class="documents-list" id="documents-list"></div>
+                    </div>
+
+                    <!-- NLP к БД -->
+                    <div id="data-nlp" class="data-content">
+                        <div class="nlp-interface">
+                            <div class="nlp-examples">
+                                <p>Попробуйте:</p>
+                                <button onclick="executeNLP('покажи продажи за январь')">"покажи продажи за январь"</button>
+                                <button onclick="executeNLP('создай таблицу клиентов')">"создай таблицу клиентов"</button>
+                                <button onclick="executeNLP('график роста по месяцам')">"график роста по месяцам"</button>
+                            </div>
+                            <div class="nlp-chat" id="nlp-chat"></div>
+                        </div>
+                    </div>
+
+                    <!-- Аналитика -->
+                    <div id="data-analytics" class="data-content">
+                        <div class="analytics-dashboard">
+                            <div class="chart-placeholder">
+                                <p>Графики и дашборды</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. АВТОМАТИЗАЦИЯ -->
+            <section id="automation-section" class="section">
+                <div class="automation-container">
+                    <div class="automation-header">
+                        <h2>Автоматизация</h2>
+                        <button class="btn-primary" onclick="createWorkflow()">+ Создать workflow</button>
+                    </div>
+
+                    <div class="workflows-list" id="workflows-list">
+                        <div class="workflow-card">
+                            <div class="workflow-trigger">
+                                <span class="badge">Webhook</span>
+                                <span class="arrow">→</span>
+                                <span class="badge">AI Анализ</span>
+                                <span class="arrow">→</span>
+                                <span class="badge">Telegram</span>
+                            </div>
+                            <div class="workflow-actions">
+                                <button onclick="editWorkflow(1)">✏️</button>
+                                <button onclick="toggleWorkflow(1)">⏸️</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Конструктор workflow -->
+                    <div id="workflow-builder" class="workflow-builder hidden">
+                        <div class="builder-canvas">
+                            <div class="workflow-node trigger" draggable="true">
+                                <span>⚡ Триггер</span>
+                            </div>
+                            <div class="workflow-connector"></div>
+                            <div class="workflow-node action" draggable="true">
+                                <span>🔧 Действие</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. ПРОФИЛЬ -->
+            <section id="profile-section" class="section">
+                <div class="profile-container">
+                    <div class="profile-header">
+                        <div class="avatar-large">👤</div>
+                        <div class="profile-info">
+                            <h2 id="profile-name">Пользователь</h2>
+                            <p id="profile-email">user@example.com</p>
+                        </div>
+                    </div>
+
+                    <div class="profile-stats">
+                        <div class="stat-card">
+                            <span class="stat-value" id="balance">0</span>
+                            <span class="stat-label">Баланс</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-value" id="projects-count">0</span>
+                            <span class="stat-label">Проектов</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-value" id="requests-count">0</span>
+                            <span class="stat-label">Запросов</span>
+                        </div>
+                    </div>
+
+                    <div class="profile-sections">
+                        <div class="profile-section">
+                            <h3>🔑 API Ключи</h3>
+                            <div class="api-keys-list" id="api-keys-list">
+                                <div class="api-key-item">
+                                    <span>OpenAI</span>
+                                    <button onclick="addApiKey('openai')">Подключить</button>
+                                </div>
+                                <div class="api-key-item">
+                                    <span>Anthropic</span>
+                                    <button onclick="addApiKey('anthropic')">Подключить</button>
+                                </div>
+                                <div class="api-key-item">
+                                    <span>Google</span>
+                                    <button onclick="addApiKey('google')">Подключить</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="profile-section">
+                            <h3>⚙️ Настройки</h3>
+                            <div class="settings-list">
+                                <label class="setting-item">
+                                    <span>Режим работы</span>
+                                    <select id="work-mode">
+                                        <option value="simple">Простой (только чат)</option>
+                                        <option value="pro">Профессиональный</option>
+                                        <option value="autonomous">Автономный</option>
+                                    </select>
+                                </label>
+                                <label class="setting-item">
+                                    <span>Тема</span>
+                                    <select id="theme-select">
+                                        <option value="dark">Тёмная</option>
+                                        <option value="light">Светлая</option>
+                                        <option value="auto">Авто</option>
+                                    </select>
+                                </label>
+                                <label class="setting-item">
+                                    <span>Язык</span>
+                                    <select id="language-select">
+                                        <option value="ru">Русский</option>
+                                        <option value="en">English</option>
+                                    </select>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="profile-section">
+                            <h3>📊 Лимиты</h3>
+                            <div class="limits-list">
+                                <div class="limit-item">
+                                    <span>Токены в день</span>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 45%"></div>
+                                    </div>
+                                    <small>45,000 / 100,000</small>
+                                </div>
+                                <div class="limit-item">
+                                    <span>Генерации изображений</span>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 20%"></div>
+                                    </div>
+                                    <small>10 / 50</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Модальные окна -->
+        <div id="modal-overlay" class="modal-overlay hidden">
+            <div class="modal" id="modal-content">
+                <!-- Динамическое содержимое -->
+            </div>
+        </div>
+
+        <!-- Toast уведомления -->
+        <div id="toast-container"></div>
+
+        <!-- Индикатор прогресса -->
+        <div id="global-progress" class="global-progress hidden">
+            <div class="progress-line"></div>
+            <span class="progress-text">Обработка...</span>
+            <button onclick="cancelOperation()">Отменить</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
