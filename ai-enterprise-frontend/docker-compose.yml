@@ -1,1 +1,16 @@
+# path: docker-compose.yml
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
 
+  # backend is an example placeholder (replace with your real backend service)
+  backend:
+    image: nginx:1.27-alpine
+    ports:
+      - "8000:80"
