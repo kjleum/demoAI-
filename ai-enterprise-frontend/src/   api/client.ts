@@ -61,7 +61,7 @@ export async function apiRequest<T>(path: string, init: ReqInit = {}): Promise<T
   const res = await fetch(`${env.apiBase}${path}`, {
     method,
     headers: h,
-    body: body !== undefined ? JSON.stringify(body) : undefined,
+    + body: body !== undefined ? JSON.stringify(body) : undefined,
     credentials: "include", // HttpOnly cookies only
     signal: withTimeout(signal, timeoutMs)
   });
