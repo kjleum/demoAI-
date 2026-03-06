@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -20,7 +22,9 @@ app.add_middleware(
 app.include_router(api_router, prefix="/api/v1")
 
 # Static (avatars etc.)
-app.mount("/static", StaticFiles(directory="static"), name="static")
+STATIC_DIR = Path("static")
+STATIC_DIR.mkdir(parents=True, exist_ok=True)
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 
 @app.get("/api/v1/health", tags=["health"])
